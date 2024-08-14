@@ -1,6 +1,6 @@
 <template>
   <header id="background-image" class="bg-red-800 h-[300px]">
-    <form v-on:submit="submitSearch()" class="max-w-[525px] w-full mx-auto pt-8" @submitSearch="submitSearch"
+    <form v-on:submit="submitSearch()" class="max-w-[525px] w-11/12 mx-auto pt-8" @submitSearch="submitSearch"
       @submit.prevent autocomplete="off">
       <div class="bg-[#20293A] p-3 rounded-lg flex flex-row gap-3">
         <SearchIcon class="cursor-pointer hover:scale-105 transition-all duration-200" />

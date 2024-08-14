@@ -1,7 +1,7 @@
 <template>
-  <div class="card-container mt-10 grid grid-cols-2 grid-rows-auto gap-10">
-    <article v-for="repo in repositories?.slice(0, visibleRepos)" :key="repo.id"
-      class="repository-card flex flex-col gap-3.5 p-6 rounded-xl">
+  <div class="card-container my-10 grid grid-cols-1 md:grid-cols-2 grid-rows-auto gap-10">
+    <a :href="repo.clone_url" target="_blank" v-for="repo in repositories?.slice(0, visibleRepos)" :key="repo.id"
+      class="repository-card flex flex-col gap-3.5 p-6 rounded-xl hover:scale-[1.02] transition-all duration-200 ease-linear">
       <h3 class="text-xl text-[#CDD5E0]">{{ repo.name }}</h3>
       <p class="repo-description text-base tracking-wide text-[#CDD5E0]/70 font-light leading-relaxed flex-1">
         {{ repo.description || 'No description provided' }}
@@ -23,9 +23,9 @@
           <span class="text-xs font-medium">updated {{ getLastUpdate(new Date(repo?.updated_at)) }} days ago</span>
         </button>
       </div>
-    </article>
+    </a>
   </div>
-  <div v-if="visibleRepos <= repositories?.length!" class="w-full my-10 flex justify-center" @click="loadMoreRepos">
+  <div v-if="visibleRepos <= repositories?.length!" class="w-full mb-10 flex justify-center" @click="loadMoreRepos">
     <p class="show-more">
       View more repositories
     </p>
