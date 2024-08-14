@@ -6,13 +6,13 @@
         <SearchIcon class="cursor-pointer hover:scale-105 transition-all duration-200" />
         <input v-model="search" class="bg-transparent outline-none text-white flex-1" placeholder="username" />
       </div>
-      <div v-show="search.length > 0"
+      <div v-show="search.length > 0" @click="submitSearch"
         class="bg-[#20293A] mt-3 rounded-xl p-3 w-full flex flex-row gap-3 hover:bg-[#1D1B48] cursor-pointer">
-        <figure class="p-0.5 bg-[#111729] rounded-xl max-w-20 max-h-20 ">
-          <img :src="user?.avatar_url" class="rounded-full h-full w-full" />
+        <figure class="p-0.5 bg-[#111729] flex rounded-xl w-20 h-20">
+          <img :src="user?.avatar_url || UserPlaceholder" class="rounded-full h-full w-full" />
         </figure>
-        <div class="flex flex-col justify-center gap-1.5">
-          <h3 class="text-xl text-[#CDD5E0]">{{ user?.login }}</h3>
+        <div class="flex flex-col justify-center gap-1.5 flex-1">
+          <h3 class="text-xl text-[#CDD5E0]">{{ user?.login || `Not found` }}</h3>
           <p class="text-base font-light text-[#CDD5E0]/70">{{ user?.bio || 'No bio provided' }}</p>
         </div>
       </div>
@@ -21,16 +21,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { inject, Ref, ref, watch } from 'vue';
 import SearchIcon from '../assets/icons/Search.svg';
 import { GithubService } from '../services/api/github.service';
 import { GithubUserInfo } from '../types/GithubUser';
+import UserPlaceholder from '../assets/images/user-image.jpg'
 
-const emit = defineEmits(['submitSearch']);
+const emit = defineEmits(['submitSearch', 'update:isRatedLimitExceeded']);
 
 const search = ref('');
 const user = ref<GithubUserInfo | null>(null);
 const loading = ref(false);
+const visibleRepos = inject('visibleRepos') as Ref<number>;
 const githubService = new GithubService();
 
 // Definimos una función genérica llamada debounce que toma dos parámetros:
@@ -60,7 +62,9 @@ const fetchUserInfo = debounce(async () => {
     try {
       const userInfo = await githubService.getUserInfoByUsername(search.value);
       user.value = userInfo;
-    } catch (error) {
+    } catch (error: any) {
+
+      if (error.message === 'Rate limit exceeded') emit('update:isRatedLimitExceeded', true);
       console.error(`There is no information for user ${search.value}`, error);
     } finally {
       loading.value = false;
@@ -76,6 +80,7 @@ const submitSearch = async () => {
 
   const username = search.value;
   search.value = "";
+  visibleRepos.value = 4;
 
   try {
     const [userInfo, userRepos] = await Promise.all([
@@ -86,8 +91,12 @@ const submitSearch = async () => {
     console.log(userInfo, userRepos);
     // emitimos al evento padre con la informacion dle usuario
     emit('submitSearch', { userInfo, userRepos });
-  } catch (error) {
+  } catch (error: any) {
+    
+    if (error.message === 'Rate limit exceeded') emit('update:isRatedLimitExceeded', true);
     console.error(`Error to get ${username} username`, error);
+  } finally {
+    user.value = null;
   }
 
 };

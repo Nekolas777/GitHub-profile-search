@@ -4,7 +4,7 @@ import Home from './pages/Home.page.vue';
 </script>
 
 <template>
-  <div class="app grid grid-rows-[auto,1fr] grid-cols-1">
+  <div class="app grid grid-rows-[auto,1fr] grid-cols-1 relative">
     <Home/>
   </div>
 </template>

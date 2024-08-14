@@ -1,6 +1,6 @@
 <template>
   <div class="card-container mt-10 grid grid-cols-2 grid-rows-auto gap-10">
-    <article v-for="repo in repositories?.slice(0, 4)" :key="repo.id"
+    <article v-for="repo in repositories?.slice(0, visibleRepos)" :key="repo.id"
       class="repository-card flex flex-col gap-3.5 p-6 rounded-xl">
       <h3 class="text-xl text-[#CDD5E0]">{{ repo.name }}</h3>
       <p class="repo-description text-base tracking-wide text-[#CDD5E0]/70 font-light leading-relaxed flex-1">
@@ -25,9 +25,9 @@
       </div>
     </article>
   </div>
-  <div class="w-full my-10 flex justify-center">
+  <div v-if="visibleRepos <= repositories?.length!" class="w-full my-10 flex justify-center" @click="loadMoreRepos">
     <p class="show-more">
-      View all repositories
+      View more repositories
     </p>
   </div>
 </template>
@@ -38,8 +38,13 @@ import StarIcon from '../assets/icons/Star.svg';
 import ChieldIcon from '../assets/icons/Chield_alt.svg';
 import { GithubUserRepo } from '../types/GithubUserRepo';
 import { getLastUpdate } from '../helpers/getLastUpdate';
+import { inject, Ref } from 'vue';
 
 const { repositories } = defineProps<{ repositories: GithubUserRepo[] | null }>();
+// 'visibleRepos' es una referencia reactiva (Ref) de tipo número
+const visibleRepos = inject('visibleRepos') as Ref<number>;
+
+const loadMoreRepos = () => visibleRepos.value += 4;
 
 </script>
 
@@ -50,8 +55,7 @@ const { repositories } = defineProps<{ repositories: GithubUserRepo[] | null }>(
 }
 
 .show-more {
-  @apply text-base py-0.5 border-b-2 border-transparent font-medium text-center hover:border-[#4A5567] cursor-pointer
-  text-[#CDD5E0]/80 tracking-wide
+  @apply text-base py-0.5 border-b-2 border-transparent font-medium text-center hover:border-[#4A5567] cursor-pointer text-[#CDD5E0]/80 tracking-wide
 }
 
 .repo-description {
